@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+
+const app = require('../src/app')
+const http = require('http')
+const websocket = require('../src/websocket').init
+
+const port = 80
+
+const onError = (error) => {
+  if (error.syscall !== 'listen') {
+    throw error
+  }
+
+  switch (error.code) {
+    case 'EACCES':
+      console.error(`Port ${port} requires elevated privileges`)
+      process.exit(1)
+      break
+    case 'EADDRINUSE':
+      console.error(`Port ${port} is already in use`)
+      process.exit(1)
+      break
+    default:
+      throw error
+  }
+}
+
+const onListening = () => {
+  const addr = server.address()
+
+  console.info(`Listening on port ${addr.port}`)
+}
+
+app.set('port', port)
+
+const server = http.createServer(app);
+
+websocket(server)
+
+server.listen(port)
+
+server.on('error', onError)
+server.on('listening', onListening)
