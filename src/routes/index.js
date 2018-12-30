@@ -31,4 +31,39 @@ router.post('/open', (req, res) => {
   res.end()
 })
 
+// @TODO Remove GET /open
+router.get('/open', (req, res) => {
+  const {url, macAddress} = req.query
+
+  if (!url && !macAddress) {
+    res.status(HttpStatus.BAD_REQUEST)
+
+    return
+  }
+
+  const clients = Array.from(getServer().clients.values())
+    .filter(socket => socket.initialized && socket.macAddress === macAddress)
+
+  if (clients.length < 1) {
+    res.status(HttpStatus.NOT_FOUND)
+  }
+
+  clients.forEach(socket => {
+    send(socket, Message.create(MessageType.OPEN, {
+      url
+    }))
+  })
+
+  res.end()
+})
+
+router.get('/list', (req, res) => {
+  const clients = Array.from(getServer().clients.values())
+
+  res.send(JSON.stringify(clients.map(socket => ({
+    macAddress: socket.macAddress,
+    active: socket.initialized
+  }))))
+})
+
 module.exports = router

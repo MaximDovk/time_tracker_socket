@@ -6,7 +6,6 @@ const {send} = require('../utils/websocket')
 const messageHandlers = {
   [MessageType.CLIENT_INIT]: (socket, payload) => {
     socket.macAddress = payload.macAddress
-    socket.name = payload.name || payload.macAddress
     socket.initialized = !!payload.macAddress
   },
   [MessageType.CLIENT_ECHO]: (socket, payload) => {
